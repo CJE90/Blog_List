@@ -29,9 +29,27 @@ const mostBlogs = (blogs) => {
     }
 }
 
+const mostLikes = (blogs) => {
+    const blogObject = lodash.groupBy(blogs, 'author');
+    const keys = Object.keys(blogObject);
+    const a = []
+    keys.forEach(key => {
+        const authorGroup = blogObject[`${key}`]
+        const b = lodash.reduce(authorGroup, function (sum, n) {
+            return sum + n.likes
+        }, 0)
+        a.push({
+            author: key,
+            likes: b
+        })
+    })
+    return a.reduce((c, d) => c.likes > d.likes ? c : d)
+}
+
 module.exports = {
     dummy,
     totalLikes,
     favoriteBlog,
-    mostBlogs
+    mostBlogs,
+    mostLikes
 }
