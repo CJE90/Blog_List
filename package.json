@@ -4,8 +4,9 @@
   "description": "Backend for blog list",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "jest --verbose"
+    "start": "NODE_ENV=production node index.js",
+    "dev": "NODE_ENV=development nodemon index.js",
+    "test": "NODE_ENV=test jest --verbose --runInBand"
   },
   "proxy": "http://localhost:3001",
   "repository": {
@@ -27,7 +28,8 @@
   },
   "devDependencies": {
     "jest": "^27.4.5",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "supertest": "^6.1.6"
   },
   "jest": {
     "testEnvironment": "node"
