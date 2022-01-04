@@ -96,6 +96,60 @@ describe('Blog posting function', () => {
     })
 })
 
+test('succeeds with a valid id', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+
+    const blogToView = blogsAtStart[0]
+
+    const resultBlog = await api
+        .get(`/api/blogs/${blogToView.id}`)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+    const processedBlogToView = JSON.parse(JSON.stringify(blogToView))
+
+    expect(resultBlog.body).toEqual(processedBlogToView)
+})
+
+test('update succeeds with a valid id', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+
+    const blogToView = blogsAtStart[0];
+    blogToView.title = 'Testing with jest'
+
+    await api
+        .put(`/api/blogs/${blogToView.id}`)
+        .send(blogToView)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    const updatedBlogToView = blogsAtEnd[0]
+
+    expect(blogToView.title).toEqual(updatedBlogToView.title)
+})
+
+describe('deletion of a blog', () => {
+    test('succeeds with status code 204 if id is valid', async () => {
+        const blogsAtStart = await helper.blogsInDb()
+        const blogToDelete = blogsAtStart[0]
+
+        await api
+            .delete(`/api/blogs/${blogToDelete.id}`)
+            .expect(204)
+
+        const blogsAtEnd = await helper.blogsInDb()
+
+        expect(blogsAtEnd).toHaveLength(
+            helper.initialBlogs.length - 1
+        )
+
+        const titles = blogsAtEnd.map(r => r.title)
+
+        expect(titles).not.toContain(blogToDelete.title)
+    })
+})
+
 afterAll(() => {
     mongoose.connection.close()
 })
