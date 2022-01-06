@@ -21,12 +21,15 @@ blogsRouter.get('/:id', async (request, response) => {
 blogsRouter.post('/', async (request, response, next) => {
     const body = request.body
 
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if (!decodedToken.id) {
-        return response.status(401).json({ error: 'token missing or invalid' })
-    }
+    // const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    // if (!decodedToken.id) {
+    //     return response.status(401).json({ error: 'token missing or invalid' })
+    // }
 
-    const user = await User.findById(decodedToken.id)
+    // const user = await User.findById(decodedToken.id)
+
+    const user = request.user
+    console.log(user)
 
     const blog = new Blog({
         title: body.title,
@@ -60,17 +63,18 @@ blogsRouter.put('/:id', (request, response, next) => {
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-    const body = request;
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if (!decodedToken.id) {
-        return response.status(401).json({ error: 'token missing or invalid' })
-    }
+
+    //const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    // if (!decodedToken.id) {
+    //     return response.status(401).json({ error: 'token missing or invalid' })
+    // }
+    const user = request.user
 
     //we have the id of the blog
     //we have the id of the user
     //do we want to search the user for their blogs
     //or the blogs for their users?
-    const user = await User.findById(decodedToken.id);
+    //onst user = await User.findById(decodedToken.id);
     const doesUserHaveBlog = await user.blogs.filter(blog => blog.toString() === request.params.id.toString())
     if (doesUserHaveBlog) {
         await Blog.findByIdAndRemove(request.params.id)
