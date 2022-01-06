@@ -23,7 +23,6 @@ blogsRouter.post('/', async (request, response, next) => {
 
     const decodedToken = jwt.verify(request.token, process.env.SECRET)
     if (!decodedToken.id) {
-        console.log("this is the token", decodedToken)
         return response.status(401).json({ error: 'token missing or invalid' })
     }
 
@@ -61,7 +60,24 @@ blogsRouter.put('/:id', (request, response, next) => {
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-    await Blog.findByIdAndRemove(request.params.id)
+    const body = request;
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    if (!decodedToken.id) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
+    //we have the id of the blog
+    //we have the id of the user
+    //do we want to search the user for their blogs
+    //or the blogs for their users?
+    const user = await User.findById(decodedToken.id);
+    const doesUserHaveBlog = await user.blogs.filter(blog => blog.toString() === request.params.id.toString())
+    if (doesUserHaveBlog) {
+        await Blog.findByIdAndRemove(request.params.id)
+    } else {
+        return response.status(401).json({ error: 'user not authorized to delete blog' })
+    }
+
     response.status(204).end()
 })
 
